@@ -1,23 +1,47 @@
-name: Update Publications
+name: Update publications from ADS
 
 on:
   schedule:
-    - cron: "0 4 * * 1"   # every Monday
+    - cron: "0 0 * * 0"   # weekly
   workflow_dispatch:
 
 jobs:
-  update:
+  build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-python@v4
-      - run: pip install requests
-      - run: python fetch_publications.py
+      - uses: actions/checkout@v4
+
+      - name: Query ADS
         env:
-          ADS_API_TOKEN: ${{ secrets.ADS_API_TOKEN }}
-      - run: |
+          ADS_TOKEN: ${{ secrets.ADS_TOKEN }}
+        run: |
+          python - << 'EOF'
+          import requests, json
+
+          headers = {"Authorization": f"Bearer {headers := None}"}
+          headers = {"Authorization": f"Bearer {__import__('os').environ['ADS_TOKEN']}"}
+
+          query = "orcid:0009-0000-3694-8993"   # <-- PUT YOUR ORCID HERE
+          url = "https://api.adsabs.harvard.edu/v1/search/query"
+
+          params = {
+              "q": query,
+              "fl": "title,year,pub,bibcode,author",
+              "rows": 100,
+              "sort": "date desc"
+          }
+
+          r = requests.get(url, headers=headers, params=params)
+          docs = r.json()["response"]["docs"]
+
+          with open("publications.json", "w") as f:
+              json.dump(docs, f, indent=2)
+          EOF
+
+      - name: Commit JSON
+        run: |
           git config user.name "github-actions"
           git config user.email "actions@github.com"
           git add publications.json
-          git commit -m "Auto-update publications" || echo "No changes"
+          git commit -m "Update publications"
           git push
