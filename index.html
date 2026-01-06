@@ -132,6 +132,28 @@
 								<b>Publications:</b> <a href="https://ui.adsabs.harvard.edu/search/q=orcid%3A0009-0000-3694-8993&sort=date+desc" target="_blank">ADS Library</a>
 							</p>
 						</article>
+						
+						<!-- Here is the "Publication" card. -->
+						<article id="publication">
+							<h2 class="major">Research</h2>
+							<ul id="pubs"></ul>					
+							<script>
+							fetch("publications.json")
+							  .then(r => r.json())
+							  .then(pubs => {
+							    const ul = document.getElementById("pubs");
+							    pubs.forEach(p => {
+							      const li = document.createElement("li");
+							      li.innerHTML = `
+							        <b>${p.title[0]}</b> (${p.year})<br>
+							        <i>${p.pub}</i>
+							        [<a href="https://ui.adsabs.harvard.edu/abs/${p.bibcode}">ADS</a>]
+							      `;
+							      ul.appendChild(li);
+							    });
+							  });
+							</script>
+						</article>
 
 						<!-- Here is the "Community" card. -->
 <!-- 						<article id="community">
@@ -233,6 +255,7 @@
 
 	</body>
 </html>
+
 
 
 
