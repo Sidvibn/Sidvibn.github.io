@@ -1,0 +1,13 @@
+{
+  "generated": "2026-01-24T12:07:44.565938",
+  "papers": [
+    {
+      "title": "Planetary Obliquity Excitation Through Pre-Main Sequence Stellar Evolution",
+      "authors": "Sidhant Kumar Suar, Sarah C. Millholland",
+      "abstract": "A planet's axial tilt (\"obliquity\") substantially affects its atmosphere and habitability. It is thus essential to comprehend the various mechanisms that can excite planetary obliquities, particularly at the primordial stage. Here, we explore planetary obliquity excitation induced by the early evolution of the host star. A young, distended star spins rapidly, resulting in a large gravitational quadrupole moment that induces nodal recession of the planet's orbit. As the star contracts and spins down, the nodal recession frequency decreases and can cross the planet's spin axis precession frequency. An adiabatic encounter results in the planet's capture into a secular spin-orbit resonance and excites the obliquity to large values. We find planets within $a \\lesssim 1 \\ \\mathrm{AU}$ are most affected, but adiabatic capture depends on the initial stellar radius and spin rate. The overall picture is complicated by other sources of perturbation, including the disk, multiple planets, and tidal dissipation. Tides make it such that stellar oblateness-induced obliquity excitation is transient since tidal perturbations cause the resonance to break once high obliquities are reached. However, this early transient excitation is important because it can prime planets for long-term capture in a secular spin-orbit resonance induced by planet-planet interactions. Thus, although stellar oblateness-induced resonances are short-lived, they facilitate the prevalence of long-lived non-zero obliquities in exoplanets.",
+      "url": "http://arxiv.org/abs/2506.17843v2",
+      "published": "2025-06-21",
+      "score": "0.4815874"
+    }
+  ]
+}
