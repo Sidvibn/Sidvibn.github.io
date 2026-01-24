@@ -110,51 +110,58 @@
 							Previously, I was a physics and astronomy bachelor's student at <a href="https://www.utoronto.ca/" target="_blank">UofT</a>, and an astrophysics master's student at <a href="https://www.ucl.ac.uk/" target="_blank">UCL</a>.
 						</article>
 
-						<!-- Here is the "Research" card. -->
+						<!-- Here is the "Research" card -->
 						<article id="research">
-							<h2 class="major">Research</h2>
-							<span class="image main">
-								<img src="images/exoplanets.jpg" alt=""/>
-							</span>
-							<p>
-								<!-- 	A <br> tag puts in a break so that the text that follows it displays on
-									the next line.
-								-->
-								<b>Excitation of Planetary Obliquities through Planet-Star Interactions</b><br>Theoretically investigated the effects of Star-Planet interactions on the excitation of planetary obliquities.
-							</p>
-							<p>
-								<b>Dynamics of the atmospheres of ultra-hot Jupiters</b><br>Studied the atmospheric dynamics of hot Jupiters due to cooling and rotation by implementing a well-balancing method.
-							</p>
-							<p>
-								<b>Giant Planet Seismology</b><br>Looked at the effects of the rotation of Jupiter on its internal modes of oscillation and studied their gravitational perturbations on the satellite Juno.
-							</p>
-							<p>
-								<b>Publications:</b> <a href="https://ui.adsabs.harvard.edu/search/q=orcid%3A0009-0000-3694-8993&sort=date+desc" target="_blank">ADS Library</a>
-							</p>
+						  <h2 class="major">Research</h2>
+						
+						  <span class="image main">
+						    <img src="images/exoplanets.jpg" alt="" />
+						  </span>
+
+						  <p>
+							<b>Selected First Author Papers from My Research Interests:</b>
+						  </p>
+						
+						  <!-- Updated timestamp -->
+						  <p id="updated" style="font-size: 0.9em; opacity: 0.7;"></p>
+						
+						  <!-- Paper list -->
+						  <ul id="arxiv-list"></ul>
+						
+						  <script>
+						  fetch("arxiv_disk_digest.json")
+						    .then(r => r.json())
+						    .then(data => {
+						
+						      // Updated timestamp
+						      document.getElementById("updated").innerText =
+						        "Updated: " + new Date(data.generated).toLocaleString();
+						
+						      // Paper list
+						      const ul = document.getElementById("arxiv-list");
+						
+						      data.papers.forEach(p => {
+						        const li = document.createElement("li");
+						        li.innerHTML = `
+						          <b>${p.title}</b><br>
+						          <i>${p.authors}</i><br>
+						          <small>${p.published}</small><br>
+						          <a href="${p.url}" target="_blank">arXiv link</a>
+						          <p>${p.abstract}</p>
+						        `;
+						        ul.appendChild(li);
+						      });
+						    });
+						  </script>
+						
+						  <p>
+						    <b>For more, please see my </b>
+						    <a href="https://ui.adsabs.harvard.edu/search/q=orcid%3A0009-0000-3694-8993&sort=date+desc" target="_blank">
+						      ADS Library
+						    </a>
+						  </p>
 						</article>
 						
-						<!-- Here is the "Publication" card. -->
-						<article id="publication">
-							<h2 class="major">Research</h2>
-							<ul id="pubs"></ul>					
-							<script>
-							fetch("publications.json")
-							  .then(r => r.json())
-							  .then(pubs => {
-							    const ul = document.getElementById("pubs");
-							    pubs.forEach(p => {
-							      const li = document.createElement("li");
-							      li.innerHTML = `
-							        <b>${p.title[0]}</b> (${p.year})<br>
-							        <i>${p.pub}</i>
-							        [<a href="https://ui.adsabs.harvard.edu/abs/${p.bibcode}">ADS</a>]
-							      `;
-							      ul.appendChild(li);
-							    });
-							  });
-							</script>
-						</article>
-
 						<!-- Here is the "Community" card. -->
 <!-- 						<article id="community">
 							<h2 class="major">Community</h2>
@@ -255,6 +262,7 @@
 
 	</body>
 </html>
+
 
 
 
