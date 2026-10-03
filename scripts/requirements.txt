@@ -1,0 +1,5 @@
+# PyTorch (CPU-only) is installed separately in the workflow, before this file,
+# so sentence-transformers doesn't pull in the multi-GB GPU build.
+arxiv>=2.1,<3
+sentence-transformers>=3.0
+numpy

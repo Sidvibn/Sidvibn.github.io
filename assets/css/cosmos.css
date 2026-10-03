@@ -1,0 +1,185 @@
+/*
+	cosmos.css: star and planet formation theme, layered on top of main.css.
+	main.css is untouched; delete this file's <link> to get the original look back.
+
+	Palette follows a disk's temperature profile, hot core to cold outer dust:
+	  core  #fff1d6   ember #f2a65a   rust #c45a3a   dust #865864   ice #9cc7dc
+	  jet   #cfe6ff   void  #070816
+*/
+
+:root {
+	--void: #070816;
+	--core: #fff1d6;
+	--ember: #f2a65a;
+	--rust: #c45a3a;
+	--dust: #865864;
+	--ice: #9cc7dc;
+	--jet: #cfe6ff;
+}
+
+/* Type: Jost, a geometric face in the Futura tradition of space-age signage */
+
+body {
+	background: var(--void);
+}
+
+body, input, select, textarea {
+	font-family: "Jost", "Source Sans Pro", "Century Gothic", "Futura", sans-serif;
+	font-weight: 300;
+}
+
+h1, h2, h3, h4, h5, h6 {
+	font-family: "Jost", "Source Sans Pro", "Century Gothic", sans-serif;
+	font-weight: 500;
+}
+
+#header h1 {
+	font-weight: 400;
+	letter-spacing: 0.6rem;
+	text-shadow: 0 0 1.5rem rgba(7, 8, 22, 0.9), 0 0 0.25rem rgba(7, 8, 22, 0.8);
+}
+
+#header .content p {
+	color: var(--core);
+	text-shadow: 0 0 1rem rgba(7, 8, 22, 0.95);
+}
+
+::selection {
+	background: var(--ember);
+	color: var(--void);
+}
+
+/* Background: the canvases from cosmos.js replace the photo when JS runs */
+
+.cosmos-layer {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	z-index: 1;
+	display: block;
+	transition: transform 0.325s ease-in-out, filter 0.325s ease-in-out;
+}
+
+.cosmos-on #bg:after {
+	display: none;
+}
+
+/* Keep the template's fade-from-black intro, but swap the dot screen for a
+   gentle vignette so the disk reads clearly */
+.cosmos-on #bg:before {
+	background-image: radial-gradient(ellipse at center, rgba(7, 8, 22, 0) 45%, rgba(7, 8, 22, 0.6) 100%);
+	background-size: cover;
+	background-repeat: no-repeat;
+}
+
+/* Same depth effect the template applies to its photo when a card opens */
+body.is-article-visible .cosmos-layer {
+	transform: scale(0.965);
+	filter: blur(0.2rem) brightness(0.75);
+}
+
+/* Header: the vertical connector lines become the protostellar jet */
+
+#header {
+	background-image: radial-gradient(rgba(7, 8, 22, 0.3) 20%, rgba(7, 8, 22, 0) 55%);
+}
+
+#header > *:before {
+	background: linear-gradient(to bottom, rgba(207, 230, 255, 0.05), var(--jet));
+}
+
+#header .content {
+	border-color: rgba(255, 241, 214, 0.75);
+	background: rgba(7, 8, 22, 0.18);
+	backdrop-filter: blur(1.5px);
+	-webkit-backdrop-filter: blur(2px);
+}
+
+#header nav ul,
+#header nav ul li {
+	border-color: rgba(255, 241, 214, 0.75);
+}
+
+#header nav ul {
+	background: rgba(7, 8, 22, 0.35);
+}
+
+#header nav.use-middle:after {
+	background: rgba(255, 241, 214, 0.75);
+}
+
+#header nav ul li a:hover {
+	background-color: rgba(242, 166, 90, 0.14);
+	color: var(--core);
+}
+
+#header nav ul li a:active {
+	background-color: rgba(242, 166, 90, 0.26);
+}
+
+/* Cards */
+
+#main article {
+	background-color: rgba(9, 10, 26, 0.86);
+	box-shadow: inset 0 1px 0 rgba(255, 241, 214, 0.08), 0 2rem 5rem -2rem rgba(196, 90, 58, 0.35);
+	backdrop-filter: blur(6px);
+	-webkit-backdrop-filter: blur(6px);
+}
+
+/* Heading rule runs hot to cold, like the disk from star outward */
+h2.major {
+	border-bottom: 0;
+	padding-bottom: 0.6rem;
+	background-image: linear-gradient(90deg, var(--core), var(--ember) 30%, var(--rust) 60%, var(--dust) 82%, var(--ice));
+	background-size: 100% 1px;
+	background-position: left bottom;
+	background-repeat: no-repeat;
+}
+
+#main article a {
+	border-bottom-color: rgba(242, 166, 90, 0.6);
+}
+
+#main article a:hover {
+	color: var(--ember);
+}
+
+#main .image.main img {
+	border-radius: 4px;
+}
+
+/* Research list */
+
+#arxiv-list {
+	padding-left: 1.1rem;
+}
+
+#arxiv-list li {
+	margin-bottom: 1.5rem;
+	padding-left: 0.4rem;
+	line-height: 1.6;
+}
+
+#arxiv-list li::marker {
+	color: var(--ember);
+}
+
+#arxiv-list li i {
+	color: rgba(255, 241, 214, 0.75);
+}
+
+/* Focus that's visible on the dark sky */
+
+a:focus-visible,
+button:focus-visible,
+#main article .close:focus-visible {
+	outline: 2px solid var(--ember);
+	outline-offset: 3px;
+	border-radius: 2px;
+}
+
+#footer .copyright {
+	color: rgba(255, 241, 214, 0.55);
+}
