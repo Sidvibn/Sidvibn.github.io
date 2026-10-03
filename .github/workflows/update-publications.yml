@@ -1,0 +1,58 @@
+# Refreshes the Research tab's paper list (arxiv_disk_digest.json) every week.
+# To run it right now: GitHub repo -> Actions tab -> "Update publication list" -> Run workflow.
+
+name: Update publication list
+
+on:
+  schedule:
+    - cron: "0 9 * * 1"   # Mondays at 09:00 UTC (5am in Virginia)
+  workflow_dispatch:       # adds the manual "Run workflow" button
+
+permissions:
+  contents: write          # lets the workflow commit the updated JSON
+
+concurrency:
+  group: update-publications
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Check out the site
+        uses: actions/checkout@v6
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: scripts/requirements.txt
+
+      - name: Install dependencies
+        run: |
+          pip install torch --index-url https://download.pytorch.org/whl/cpu
+          pip install -r scripts/requirements.txt
+
+      - name: Cache the embedding model
+        uses: actions/cache@v5
+        with:
+          path: ~/.cache/huggingface
+          key: hf-all-MiniLM-L6-v2
+
+      - name: Fetch papers and rebuild the JSON
+        run: python scripts/update_publications.py
+
+      - name: Commit the updated list
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add arxiv_disk_digest.json
+          if git diff --staged --quiet; then
+            echo "No changes to commit."
+          else
+            git commit -m "Update publication list"
+            git push
+          fi
