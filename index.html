@@ -139,7 +139,7 @@
 						  <ul id="arxiv-list"></ul>
 						
 						  <script>
-						  fetch("arxiv_disk_digest.json")
+						  fetch("arxiv_disk_digest.json", { cache: "no-cache" })
 						    .then(r => r.json())
 						    .then(data => {
 						
