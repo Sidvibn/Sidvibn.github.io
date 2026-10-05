@@ -2,12 +2,13 @@
 	cosmos.js: a live protoplanetary disk behind the Dimension layout.
 
 	Two canvases are added inside #bg (no HTML changes needed):
-	  1. a static sky: stars, molecular-cloud glow, the protostar and its bipolar jet
+	  1. a static sky: stars, molecular-cloud glow, the protostar, and a bipolar
+	     outflow (wide blue- and redshifted cavities around a narrow jet)
 	  2. the disk: dust particles on Keplerian orbits (omega ~ r^-1.5), with gaps
 	     carved by two embedded planets and an icy tint beyond the snow line.
 
-	The jet axis is aligned with the template's vertical connector lines, and the
-	disk is centred on the name box. If JavaScript is off, the original
+	The disk is tilted on screen (PA_DEG) and centred on the name box; the outflow
+	runs perpendicular to it. If JavaScript is off, the original
 	background image in main.css is shown instead.
 */
 (function () {
@@ -21,6 +22,10 @@
 
 	// ---- Tunables ---------------------------------------------------------
 	var COS_I = 0.26;            // disk inclination (cos i): ~75 degrees
+	var PA_DEG = -24;            // tilt of the disk on screen, degrees (0 = level)
+	var PA = PA_DEG * Math.PI / 180;
+	var COS_PA = Math.cos(PA), SIN_PA = Math.sin(PA);
+	var OUTFLOW_WIDTH = 0.42;    // outflow cavity half-width at its far end, as a fraction of its length
 	var SIN_I = Math.sqrt(1 - COS_I * COS_I);
 	var R_IN = 0.07;             // inner edge, in units of outer radius
 	var OUTER_PERIOD = 260;      // seconds per orbit at the outer edge
@@ -51,6 +56,8 @@
 	var DUST = [134, 88, 100];
 	var ICE = [156, 199, 220];
 	var JET = [207, 230, 255];
+	var BLUE_LOBE = [110, 160, 255];  // blueshifted outflow lobe
+	var RED_LOBE = [255, 105, 85];    // redshifted outflow lobe
 
 	// ---- Canvas setup -----------------------------------------------------
 	function makeLayer(cls) {
@@ -189,31 +196,79 @@
 
 		s.globalCompositeOperation = 'lighter';
 
-		// Bipolar jet, along the same axis as the header's connector lines
-		var jetLen = Math.max(H * 0.62, R * 0.9);
-		[-1, 1].forEach(function (dir) {
-			var g = s.createLinearGradient(cx, cy, cx, cy + dir * jetLen);
-			g.addColorStop(0, rgba(JET, 0.16));
-			g.addColorStop(0.5, rgba(JET, 0.05));
-			g.addColorStop(1, rgba(JET, 0));
-			s.fillStyle = g;
+		// Outflow, perpendicular to the tilted disk. A wide-angle wind carves two
+		// cavities; the blueshifted lobe tilts toward us, so on the sky it sits on
+		// the disk's far side, and the redshifted lobe on the near side.
+		var L = Math.max(H * 0.7, R * 0.95);
+		s.save();
+		s.translate(cx, cy);
+		s.rotate(PA);
+		[{ dir: -1, col: BLUE_LOBE }, { dir: 1, col: RED_LOBE }].forEach(function (lobe) {
+			var dir = lobe.dir, col = lobe.col;
+			var wMax = L * OUTFLOW_WIDTH;
+			var steps = 40, right = [], left = [];
+			for (var k = 0; k <= steps; k++) {
+				var t = k / steps;
+				var w = wMax * Math.sqrt(t);        // parabolic cavity wall
+				right.push([w, dir * L * t]);
+				left.push([-w, dir * L * t]);
+			}
+
+			// Faint fill inside the cavity (scattered light)
+			var fill = s.createLinearGradient(0, 0, 0, dir * L);
+			fill.addColorStop(0, rgba(col, 0.10));
+			fill.addColorStop(0.45, rgba(col, 0.04));
+			fill.addColorStop(1, rgba(col, 0));
+			s.fillStyle = fill;
 			s.beginPath();
-			s.moveTo(cx - 0.6, cy);
-			s.lineTo(cx - 3.5, cy + dir * jetLen);
-			s.lineTo(cx + 3.5, cy + dir * jetLen);
-			s.lineTo(cx + 0.6, cy);
+			s.moveTo(0, 0);
+			right.forEach(function (pt) { s.lineTo(pt[0], pt[1]); });
+			for (var m = left.length - 1; m >= 0; m--) s.lineTo(left[m][0], left[m][1]);
 			s.closePath();
 			s.fill();
+
+			// Limb-brightened cavity walls, layered strokes to stay soft without ctx.filter
+			[[10, 0.025], [5, 0.05], [1.6, 0.16]].forEach(function (pass) {
+				var edge = s.createLinearGradient(0, 0, 0, dir * L);
+				edge.addColorStop(0, rgba(col, pass[1]));
+				edge.addColorStop(0.6, rgba(col, pass[1] * 0.45));
+				edge.addColorStop(1, rgba(col, 0));
+				s.strokeStyle = edge;
+				s.lineWidth = pass[0];
+				s.lineCap = 'round';
+				[right, left].forEach(function (side) {
+					s.beginPath();
+					s.moveTo(0, 0);
+					side.forEach(function (pt) { s.lineTo(pt[0], pt[1]); });
+					s.stroke();
+				});
+			});
+
+			// Collimated jet down the middle
+			var jg = s.createLinearGradient(0, 0, 0, dir * L);
+			jg.addColorStop(0, rgba(JET, 0.22));
+			jg.addColorStop(0.5, rgba(JET, 0.07));
+			jg.addColorStop(1, rgba(JET, 0));
+			s.fillStyle = jg;
+			s.beginPath();
+			s.moveTo(-0.8, 0);
+			s.lineTo(-4, dir * L);
+			s.lineTo(4, dir * L);
+			s.lineTo(0.8, 0);
+			s.closePath();
+			s.fill();
+
 			// Herbig-Haro knots: shocks where the jet ploughs into the cloud
-			[0.32, 0.55, 0.8].forEach(function (f, j) {
-				var ky = cy + dir * jetLen * f, kr = 16 + j * 10;
-				var kg = s.createRadialGradient(cx, ky, 0, cx, ky, kr);
-				kg.addColorStop(0, rgba(JET, 0.07 - j * 0.015));
+			[0.3, 0.52, 0.78].forEach(function (f, j) {
+				var ky = dir * L * f, kr = 14 + j * 9;
+				var kg = s.createRadialGradient(0, ky, 0, 0, ky, kr);
+				kg.addColorStop(0, rgba(JET, 0.12 - j * 0.03));
 				kg.addColorStop(1, rgba(JET, 0));
 				s.fillStyle = kg;
-				s.fillRect(cx - kr, ky - kr, kr * 2, kr * 2);
+				s.fillRect(-kr, ky - kr, kr * 2, kr * 2);
 			});
 		});
+		s.restore();
 
 		// Protostar: small hot core inside a wide, faint scattered-light halo
 		var halo = s.createRadialGradient(cx, cy, 0, cx, cy, R * 0.42);
@@ -235,10 +290,10 @@
 
 	// ---- Disk -------------------------------------------------------------
 	function project(r, phi, z) {
-		return [
-			cx + r * R * Math.cos(phi),
-			cy + r * R * Math.sin(phi) * COS_I - z * R * SIN_I
-		];
+		var dx = r * R * Math.cos(phi);
+		var dy = r * R * Math.sin(phi) * COS_I - z * R * SIN_I;
+		// rotate onto the sky by the disk's tilt
+		return [cx + dx * COS_PA - dy * SIN_PA, cy + dx * SIN_PA + dy * COS_PA];
 	}
 
 	function drawDisk(dt) {
